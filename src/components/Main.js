@@ -1,18 +1,29 @@
 import Table from "react-bootstrap/Table";
 import { fetchUserAccount } from "../api/UserService.js";
 import { useEffect, useState } from "react";
+import ReactPaginate from "react-paginate";
 
 function Main() {
   const [dataUsers, setDataUsers] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [page, setPage] = useState(1);
 
-  const getUserAccount = async () => {
-    let res = await fetchUserAccount();
-    if (res && res.data) setDataUsers(res.data);
+  const handlePageClick = (event) => {
+    setPage(+event.selected + 1);
+  };
+
+  const getUserAccount = async (page) => {
+    let res = await fetchUserAccount(page);
+    if (res && res.data) {
+      setDataUsers(res.data);
+      setTotalPages(res.total_pages);
+    }
+    console.log(res);
   };
 
   useEffect(() => {
-    getUserAccount();
-  }, []);
+    getUserAccount(page);
+  }, [page]);
 
   return (
     <div className="m-5">
@@ -36,6 +47,25 @@ function Main() {
           ))}
         </tbody>
       </Table>
+      <ReactPaginate
+        previousLabel="Previous"
+        nextLabel="Next"
+        pageClassName="page-item"
+        pageLinkClassName="page-link"
+        previousClassName="page-item"
+        previousLinkClassName="page-link"
+        nextClassName="page-item"
+        nextLinkClassName="page-link"
+        breakLabel="..."
+        breakClassName="page-item"
+        breakLinkClassName="page-link"
+        pageCount={totalPages}
+        marginPagesDisplayed={2}
+        pageRangeDisplayed={5}
+        onPageChange={handlePageClick}
+        containerClassName="pagination"
+        activeClassName="active"
+      />
     </div>
   );
 }
