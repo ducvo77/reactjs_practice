@@ -1,15 +1,16 @@
 import Table from "react-bootstrap/Table";
+import { useEffect, useState } from "react";
+import ReactPaginate from "react-paginate";
+import { Button, Form, Modal } from "react-bootstrap";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer, toast } from "react-toastify";
+
 import {
   fetchUserAccount,
   postCreateUserAccount,
   updateUserAccount,
   deleteUserAccount,
 } from "../api/UserService.js";
-import { useEffect, useState } from "react";
-import ReactPaginate from "react-paginate";
-import { Button, Form, Modal } from "react-bootstrap";
-import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer, toast } from "react-toastify";
 
 function Main() {
   const [dataUsers, setDataUsers] = useState([]);
@@ -21,8 +22,10 @@ function Main() {
   const [showModalDelete, setShowModaldelete] = useState(false);
   const [modalUpdate, setModalUpdate] = useState(false);
   const [user, setUser] = useState(null);
+  const [valueSearch, setValueSeacrh] = useState("");
 
   const handleCloseModalDelete = () => setShowModaldelete(false);
+
   const handleShowModaldelete = (user) => {
     setShowModaldelete(true);
     setUser(user);
@@ -33,6 +36,7 @@ function Main() {
     setName("");
     setModalUpdate(false);
   };
+
   const handleShow = () => setShow(true);
 
   const handlePageClick = (event) => {
@@ -50,6 +54,7 @@ function Main() {
       progress: undefined,
       theme: "light",
     });
+
   const notifyfailure = () =>
     toast.error("Err!", {
       position: "top-right",
@@ -101,7 +106,7 @@ function Main() {
     // await getUserAccount();
     handleCloseModalDelete();
   };
-  console.log(user);
+
   const handleUpdateUser = async () => {
     let res = await updateUserAccount({
       ...user,
@@ -118,14 +123,28 @@ function Main() {
       )
     );
     notifySuccess();
+    // console.log(res);
   };
 
   useEffect(() => {
     getUserAccount(page);
   }, [page]);
 
+  const filteredProducts = dataUsers.filter((dataUser) => {
+    return dataUser.email.includes(valueSearch);
+  });
+
   return (
     <div className="m-5">
+      {/* Search */}
+      <>
+        <span className="mx-3">Search</span>
+        <input
+          type="text"
+          placeholder="Email..."
+          onChange={(e) => setValueSeacrh(e.target.value)}
+        />
+      </>
       <div className="d-flex justify-content-between mb-2 align-items-end">
         <span className="">#Danh sách user</span>
         <Button variant="primary" onClick={handleShow}>
@@ -143,7 +162,7 @@ function Main() {
           </tr>
         </thead>
         <tbody>
-          {dataUsers?.map((item, index) => (
+          {filteredProducts?.map((item, index) => (
             <tr key={`user-${index}`}>
               <td>{item.id}</td>
               <td>{item.email}</td>
